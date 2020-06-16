@@ -9,8 +9,13 @@ import (
 
 var connect *sql.DB
 
-func InitDb() {
-	connect, _ = sql.Open("mysql", "root:zzw198419@tcp(127.0.0.1:3306)/admin?charset=utf8")
+const (
+	DB_CHARSET = "utf8"
+)
+
+func InitDb(Username,Password,DBName string) {
+	dns:=fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?charset=%s",Username,Password,DBName,DB_CHARSET)
+	connect, _ = sql.Open("mysql", dns)
 	connect.SetMaxOpenConns(128)
 	connect.SetMaxIdleConns(32)
 	connect.SetConnMaxLifetime(120 * time.Second)
@@ -21,8 +26,8 @@ func InitDb() {
 	}
 }
 
-func Insert(tableName string, uid string) {
-	InitDb()
+func Insert(Username,Password,DBName,tableName,uid string) {
+	InitDb(Username,Password,DBName)
 	tx, err1 := connect.Begin()
 	if err1 != nil {
 		panic(err1)
@@ -38,12 +43,12 @@ func Insert(tableName string, uid string) {
 	connect.Close()
 }
 
-func InsertTx(tablename string, uid string) {
-	InitDb()
+func InsertTx(Username,Password,DBName,tableName,uid string) {
+	InitDb(Username,Password,DBName)
 	tx, err1 := connect.Begin()
 	if err1 != nil {
 		panic(err1)
 	}
-	tx.Exec(fmt.Sprintf("INSERT ignore into %s (uid) values (?)", tablename), uid)
+	tx.Exec(fmt.Sprintf("INSERT ignore into %s (uid) values (?)", tableName), uid)
 	tx.Commit()
 }
