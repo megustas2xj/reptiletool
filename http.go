@@ -9,12 +9,20 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"github.com/unknwon/goconfig"
 )
 
-const ADDRESS = "101.133.159.201"
+var ADDRESS string
 
 type ip struct {
 	Origin string `json:"origin"`
+}
+
+func Init(){
+
+	config, _ := goconfig.LoadConfigFile("conf.ini")
+	ADDRESS,_=config.GetValue("header","nonce")
+
 }
 
 func Getip() string{
@@ -24,17 +32,14 @@ func Getip() string{
 	return rsg.Origin
 }
 
-func Init() {
-	if Getip() != ADDRESS {
-		//logger.WriteLog("https","代理设置错误")
-		panic("代理设置错误")
-		return
-	}
+func GetIpNoProxy() string{
+	var rsg ip
+	ipadd,_,_:=StartRequestNoProxy("GET","",nil,nil)
+	json.Unmarshal(ipadd,&rsg)
+	return rsg.Origin
 }
 
 func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) (content []byte, statusCode int, err error) {
-
-	Init()
 
 	w := multipart.NewWriter(new(bytes.Buffer))
 	for k, v := range body {
@@ -87,6 +92,35 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	resp, err = httpClient.Do(request)
 	if err != nil {
 		WriteLog("StartRequest", err.Error())
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+	statusCode = resp.StatusCode
+	content, err = ioutil.ReadAll(resp.Body)
+	return
+}
+
+func StartRequestNoProxy(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
+
+	//获取ip地址
+	if httpUrl == "" {
+		httpUrl = "http://httpbin.org/get"
+	}
+	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
+	if err != nil {
+		WriteLog("StartRequest", err.Error())
+		return nil, -1, err
+	}
+	if headers != nil {
+		for key, val := range headers {
+			request.Header.Add(key, val)
+		}
+	}
+	var resp *http.Response
+
+	resp, err = http.DefaultClient.Do(request)
+	if err != nil {
+		WriteLog("StartRequestNoProxy", err.Error())
 		return nil, -1, err
 	}
 	defer resp.Body.Close()
