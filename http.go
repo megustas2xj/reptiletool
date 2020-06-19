@@ -25,20 +25,6 @@ func Init(){
 
 }
 
-func Getip() string{
-	var rsg ip
-	ipadd,_,_:=StartRequest("GET","",nil,nil)
-	json.Unmarshal(ipadd,&rsg)
-	return rsg.Origin
-}
-
-func GetIpNoProxy() string{
-	var rsg ip
-	ipadd,_,_:=StartRequestNoProxy("GET","",nil,nil)
-	json.Unmarshal(ipadd,&rsg)
-	return rsg.Origin
-}
-
 func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) (content []byte, statusCode int, err error) {
 
 	w := multipart.NewWriter(new(bytes.Buffer))
@@ -100,6 +86,7 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	return
 }
 
+
 func StartRequestNoProxy(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
 
 	//获取ip地址
@@ -108,7 +95,7 @@ func StartRequestNoProxy(method string, httpUrl string, headers map[string]strin
 	}
 	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
 	if err != nil {
-		WriteLog("StartRequest", err.Error())
+		WriteLog("StartRequestNoProxy", err.Error())
 		return nil, -1, err
 	}
 	if headers != nil {
@@ -129,3 +116,40 @@ func StartRequestNoProxy(method string, httpUrl string, headers map[string]strin
 	return
 }
 
+func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte,port int) (content []byte, statusCode int, err error) {
+
+	dialer, err := proxy.SOCKS5("tcp",fmt.Sprintf("127.0.0.1:%v",port),nil, proxy.Direct)
+	if err != nil {
+		return
+	}
+
+	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
+	if err != nil {
+		WriteLog("StartRequestSocks", err.Error())
+		return nil, -1, err
+	}
+	if headers != nil {
+		for key, val := range headers {
+			request.Header.Add(key, val)
+		}
+	}
+	var resp *http.Response
+	httpTransport := &http.Transport{
+		//跳过证书验证
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	httpClient := &http.Client{Transport: httpTransport}
+	if dialer != nil {
+		httpTransport.Dial = dialer.Dial
+	}
+	resp, err = httpClient.Do(request)
+	if err != nil {
+		WriteLog("StartRequestSocks", err.Error())
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+	statusCode = resp.StatusCode
+	content, err = ioutil.ReadAll(resp.Body)
+	return
+}
