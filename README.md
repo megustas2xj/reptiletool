@@ -1,6 +1,9 @@
-## 用法
+## reptiletool介绍
 
-### 1.gomodule项目---->在go.mod下添加
-require (
-		github.com/megustas2xj/reptiletool v0.1.3
-)
+reptiletool 是一个http请求的工具
+
+### 下载
+
+go get https://github.com/megustas2xj/reptiletool
+
+
