@@ -9,20 +9,27 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"github.com/unknwon/goconfig"
+	"os"
 )
 
-var ADDRESS string
 
-type ip struct {
-	Origin string `json:"origin"`
-}
+func GetProxy() *Proxy{
 
-func Init(){
+	file,_:=os.Open("config.json")
+	defer file.Close()
 
-	config, _ := goconfig.LoadConfigFile("conf.ini")
-	ADDRESS,_=config.GetValue("header","nonce")
+	configJson:=ConfigJson{}
+	json.NewDecoder(file).Decode(&configJson)
 
+	config:=Proxy{
+		Host:configJson.Proxys.Proxy.Host,
+		Port:configJson.Proxys.Proxy.Port,
+		User:configJson.Proxys.Proxy.User,
+		Pwd:configJson.Proxys.Proxy.Pwd,
+		SocksHost:configJson.Proxys.Socks.Host,
+		SocksPort:configJson.Proxys.Socks.Port,
+	}
+	return &config
 }
 
 func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) (content []byte, statusCode int, err error) {
@@ -40,12 +47,14 @@ func PostFromData(bodytype string, httpurl string, headers map[string]string, bo
 
 func StartRequest(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
 
+	value:=GetProxy()
+
 	auth := proxy.Auth{
-		User:     "itemb123",
-		Password: "kIl8Jl3aKej",
+		User:     value.User,
+		Password: value.Pwd,
 	}
 
-	address := fmt.Sprintf("%s:%s", ADDRESS, "9999")
+	address := fmt.Sprintf("%s:%s", value.Host, value.Port)
 	dialer, err := proxy.SOCKS5("tcp", address, &auth, proxy.Direct)
 	if err != nil {
 		return
@@ -116,9 +125,11 @@ func StartRequestNoProxy(method string, httpUrl string, headers map[string]strin
 	return
 }
 
-func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte,port int) (content []byte, statusCode int, err error) {
+func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
 
-	dialer, err := proxy.SOCKS5("tcp",fmt.Sprintf("127.0.0.1:%v",port),nil, proxy.Direct)
+	value:=GetProxy()
+
+	dialer, err := proxy.SOCKS5("tcp",fmt.Sprintf("%v:%v",value.SocksHost,value.SocksPort),nil, proxy.Direct)
 	if err != nil {
 		return
 	}

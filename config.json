@@ -1,0 +1,25 @@
+{
+	"database": {
+		"mysql": {
+			"host":       "127.0.0.1",
+			"port":       "3306",
+			"user":       "root",
+			"pwd":        "root",
+			"name":       "admin",
+			"driver":     "mysql"
+		},
+		"DB_CHARSET":"utf8"
+	},
+	"proxys": {
+		"proxy": {
+			"host": "101.133.158.32",
+			"port": "9999",
+			"user": "itemb123",
+			"pwd" : "kIl8Jl3aKej"
+		},
+		"socks": {
+			"host": "127.0.0.1",
+			"port": "10808"
+		}
+	}
+}

@@ -2,53 +2,52 @@ package reptiletool
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"time"
+	"os"
 )
+
 
 var connect *sql.DB
 
-const (
-	DB_CHARSET = "utf8"
-)
+func GetConfig() *ConfigDb{
 
-func InitDb(Username,Password,DBName string) {
-	dns:=fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?charset=%s",Username,Password,DBName,DB_CHARSET)
+	file,_:=os.Open("config.json")
+	defer file.Close()
+
+	configJson:=ConfigJson{}
+	json.NewDecoder(file).Decode(&configJson)
+
+	config:=ConfigDb{
+		Host:configJson.Database.Mysql.Host,
+		Port:configJson.Database.Mysql.Port,
+		User:configJson.Database.Mysql.User,
+		Pwd:configJson.Database.Mysql.Pwd,
+		Name:configJson.Database.Mysql.Name,
+		Driver:configJson.Database.Mysql.Driver,
+		DbCharset:configJson.Database.DBCHARSET,
+	}
+	return &config
+}
+
+func InitDb() {
+
+	value:=GetConfig()
+	dns:=fmt.Sprintf("%s:%s@tcp(%v:%v)/%s?charset=%s",value.User,value.Pwd,value.Host,value.Port,value.Name,value.DbCharset)
 	connect, _ = sql.Open("mysql", dns)
-	connect.SetMaxOpenConns(128)
-	connect.SetMaxIdleConns(32)
-	connect.SetConnMaxLifetime(120 * time.Second)
-	err := connect.Ping()
-	if err != nil {
-		WriteLog("error", err.Error())
-		panic(err)
-	}
 }
 
-func Insert(Username,Password,DBName,tableName,uid string) {
-	InitDb(Username,Password,DBName)
-	tx, err1 := connect.Begin()
-	if err1 != nil {
-		panic(err1)
-	}
-	stmt, _ := connect.Prepare(fmt.Sprintf("INSERT ignore into %s (uid) values (?)", tableName))
-	_, err := stmt.Exec(uid)
-	WriteLog(fmt.Sprintf("%s", tableName), fmt.Sprintf("%s", uid))
-	if err != nil {
-		WriteLog("error", err.Error())
-		tx.Rollback()
-	}
-	tx.Commit()
-	connect.Close()
+func NewConnection() *sql.DB{
+
+	InitDb()
+	return connect
 }
 
-func InsertTx(Username,Password,DBName,tableName,uid string) {
-	InitDb(Username,Password,DBName)
-	tx, err1 := connect.Begin()
-	if err1 != nil {
-		panic(err1)
-	}
-	tx.Exec(fmt.Sprintf("INSERT ignore into %s (uid) values (?)", tableName), uid)
-	tx.Commit()
+func InsertUid(tableName,uid string) error{
+
+	InitDb()
+	stmt,_:=connect.Prepare(fmt.Sprintf("INSERT ignore into %s (uid) values (?)", tableName))
+	_,err:=stmt.Exec(uid)
+	return err
 }

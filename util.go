@@ -3,8 +3,10 @@ package reptiletool
 import (
 	"crypto/md5"
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"github.com/forgoer/openssl"
 )
 
 func CallMd5(data []byte) string {
@@ -21,6 +23,20 @@ func CallSha1(data []byte)string{
 	bs := h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
 }
+
+func Encrypt(str string,key string,iv string) string{
+
+	dst,_:=openssl.DesCBCEncrypt([]byte(str),[]byte(key),[]byte(iv),openssl.PKCS5_PADDING)
+	return base64.StdEncoding.EncodeToString(dst)
+}
+
+func Decrypt(str string,key string,iv string) []byte{
+
+	src,_:=base64.StdEncoding.DecodeString(str)
+	dst,_:=openssl.DesCBCDecrypt([]byte(src),[]byte(key),[]byte(iv),openssl.PKCS5_PADDING)
+	return dst
+}
+
 
 var CityList = [][]string{
 	{"广州市", "113.280637", "23.125178"},
