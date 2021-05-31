@@ -56,11 +56,19 @@ type Proxy struct {
 
 }
 
-type CallBack struct {
 
-	content		[]byte
-	statusCode	int
-	err			error
+type Params struct {
+
+	Method string
+	Header map[string]string
+
 
 }
+
+type CallBack struct {
+	content		[]byte
+	err			error
+}
+
+
 

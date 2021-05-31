@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/forgoer/openssl"
+	"github.com/go-basic/uuid"
+	"strings"
 )
 
 func CallMd5(data []byte) string {
@@ -22,6 +24,13 @@ func CallSha1(data []byte)string{
 	h.Write(data)
 	bs := h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
+}
+
+func CallUUID()string{
+
+	uuid:=uuid.New()
+	return strings.ReplaceAll(uuid,"-","")
+
 }
 
 func Encrypt(str string,key string,iv string) string{

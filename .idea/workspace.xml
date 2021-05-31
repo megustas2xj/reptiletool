@@ -3,46 +3,16 @@
   <component name="ChangeListManager">
     <list default="true" id="9e6beb62-924e-4ac6-bf5d-af6fad25416c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/http.go" beforeDir="false" afterPath="$PROJECT_DIR$/http.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/models.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/util.go" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="16" column="31" lean-forward="true" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="1" column="6" lean-forward="true" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="114">
-                <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -59,7 +29,7 @@
       <replace />
     </replaceStrings>
   </component>
-  <component name="GOROOT" path="D:/development tools/go" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../tools/go_env" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -83,7 +53,7 @@
     <option name="generalSettings">
       <MavenGeneralSettings>
         <option name="localRepository" value="D:\development tools\apache-maven\repository" />
-        <option name="mavenHome" value="D:/development tools/apache-maven" />
+        <option name="mavenHome" value="$PROJECT_DIR$/../../../development tools/apache-maven" />
         <option name="userSettingsFile" value="D:\development tools\apache-maven\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
@@ -94,6 +64,7 @@
     <option name="width" value="1936" />
     <option name="height" value="1186" />
   </component>
+  <component name="ProjectId" id="1tINxUWrTHHSZthiHUhzi26OdcP" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -114,6 +85,10 @@
       </pane>
     </panes>
   </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="GO_FMT" value="true" />
@@ -121,8 +96,13 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1594039532819" />
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="go.vgo" />
@@ -132,18 +112,7 @@
       <recent name="D:\backing\Git_Project\GO\retiletool" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -199,13 +168,18 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+    <environment>
+      <map>
+        <entry key="GOPROXY" value="https://goproxy.cn" />
+      </map>
+    </environment>
     <proxy>https://goproxy.cn</proxy>
   </component>
   <component name="editorHistoryManager">
@@ -216,7 +190,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/development tools/go/src/net/http/response.go">
+    <entry file="file://$PROJECT_DIR$/../../../development tools/go/src/net/http/response.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="169">
           <caret line="36" column="4" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="4" />
@@ -226,14 +200,14 @@
     <entry file="file://$PROJECT_DIR$/log.go">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://D:/development tools/go/src/net/http/transport.go">
+    <entry file="file://$PROJECT_DIR$/../../../development tools/go/src/net/http/transport.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="201">
           <caret line="2660" selection-start-line="2660" selection-end-line="2660" />
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/development tools/go/src/runtime/panic.go">
+    <entry file="file://$PROJECT_DIR$/../../../development tools/go/src/runtime/panic.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="201">
           <caret line="1188" selection-start-line="1188" selection-end-line="1188" />

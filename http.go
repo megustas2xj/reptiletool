@@ -12,6 +12,7 @@ import (
 	"os"
 )
 
+var callBack *CallBack
 
 func GetProxy() *Proxy{
 
@@ -32,7 +33,11 @@ func GetProxy() *Proxy{
 	return &config
 }
 
-func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) (content []byte, statusCode int, err error) {
+func init(){
+	callBack=new(CallBack)
+}
+
+func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) *CallBack {
 
 	w := multipart.NewWriter(new(bytes.Buffer))
 	for k, v := range body {
@@ -41,11 +46,11 @@ func PostFromData(bodytype string, httpurl string, headers map[string]string, bo
 	w.Close()
 	postdata, _ := json.Marshal(body)
 	headers["Content-Type"] = w.FormDataContentType()
-	content, statusCode, err = StartRequest("POST", httpurl, headers, postdata)
-	return
+	callBack= StartRequest("POST", httpurl, headers, postdata)
+	return callBack
 }
 
-func StartRequest(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
+func StartRequest(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
 
 	value:=GetProxy()
 
@@ -57,7 +62,8 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	address := fmt.Sprintf("%s:%s", value.Host, value.Port)
 	dialer, err := proxy.SOCKS5("tcp", address, &auth, proxy.Direct)
 	if err != nil {
-		return
+		callBack.err=err
+		return callBack
 	}
 
 	//获取ip地址
@@ -67,7 +73,8 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
 	if err != nil {
 		WriteLog("StartRequest", err.Error())
-		return nil, -1, err
+		callBack.err=err
+		return callBack
 	}
 	if headers != nil {
 		for key, val := range headers {
@@ -87,16 +94,16 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	resp, err = httpClient.Do(request)
 	if err != nil {
 		WriteLog("StartRequest", err.Error())
-		return nil, -1, err
+		callBack.err=err
+		return callBack
 	}
 	defer resp.Body.Close()
-	statusCode = resp.StatusCode
-	content, err = ioutil.ReadAll(resp.Body)
-	return
+	callBack.content, callBack.err= ioutil.ReadAll(resp.Body)
+	return callBack
 }
 
 
-func StartRequestNoProxy(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
+func StartRequestNoProxy(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
 
 	//获取ip地址
 	if httpUrl == "" {
@@ -105,7 +112,7 @@ func StartRequestNoProxy(method string, httpUrl string, headers map[string]strin
 	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
 	if err != nil {
 		WriteLog("StartRequestNoProxy", err.Error())
-		return nil, -1, err
+		return nil, err
 	}
 	if headers != nil {
 		for key, val := range headers {
@@ -117,15 +124,14 @@ func StartRequestNoProxy(method string, httpUrl string, headers map[string]strin
 	resp, err = http.DefaultClient.Do(request)
 	if err != nil {
 		WriteLog("StartRequestNoProxy", err.Error())
-		return nil, -1, err
+		return nil, err
 	}
 	defer resp.Body.Close()
-	statusCode = resp.StatusCode
 	content, err = ioutil.ReadAll(resp.Body)
 	return
 }
 
-func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte) (content []byte, statusCode int, err error) {
+func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
 
 	value:=GetProxy()
 
@@ -137,7 +143,7 @@ func StartRequestSocks(method string, httpUrl string, headers map[string]string,
 	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
 	if err != nil {
 		WriteLog("StartRequestSocks", err.Error())
-		return nil, -1, err
+		return nil, err
 	}
 	if headers != nil {
 		for key, val := range headers {
@@ -157,10 +163,9 @@ func StartRequestSocks(method string, httpUrl string, headers map[string]string,
 	resp, err = httpClient.Do(request)
 	if err != nil {
 		WriteLog("StartRequestSocks", err.Error())
-		return nil, -1, err
+		return nil, err
 	}
 	defer resp.Body.Close()
-	statusCode = resp.StatusCode
 	content, err = ioutil.ReadAll(resp.Body)
 	return
 }
