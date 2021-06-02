@@ -8,26 +8,50 @@ package reptiletool
  * @Description:
  */
 
+type ContentType string
+type ProxyType string
 
-type ConfigJson struct {
-	Database struct {
-		Mysql struct {
-			Host string `json:"host"`
-			Port string `json:"port"`
-			User string `json:"user"`
-			Pwd string `json:"pwd"`
-			Name string `json:"name"`
-			Driver string `json:"driver"`
-		} `json:"mysql"`
-		DBCHARSET string `json:"DB_CHARSET"`
-	} `json:"database"`
+const (
+	 Json ContentType = "1" // application/json
+	 MultipartFromData ContentType = "2" //PostFromData
+	 Urlencoded ContentType = "3" //application/x-www-form-urlencoded
+	 Socket5 ProxyType = "1"
+	 HttpProxy ProxyType = "2"
+)
+
+type GetIpRes struct {
+	Args struct {
+	} `json:"args"`
+	Headers struct {
+		AcceptEncoding string `json:"Accept-Encoding"`
+		Host string `json:"Host"`
+		UserAgent string `json:"User-Agent"`
+		XAmznTraceID string `json:"X-Amzn-Trace-Id"`
+	} `json:"headers"`
+	Origin string `json:"origin"`
+	URL string `json:"url"`
+}
+
+type AuthSocket struct {
+	Host string
+	Port string
+	UserName string
+	Password string
+}
+
+type Socket struct {
+	Host string
+	Port string
+}
+
+type ProxyRes struct {
 	Proxys struct {
-		Proxy struct {
+		HTTP struct {
 			Host string `json:"host"`
 			Port string `json:"port"`
 			User string `json:"user"`
 			Pwd string `json:"pwd"`
-		} `json:"proxy"`
+		} `json:"http"`
 		Socks struct {
 			Host string `json:"host"`
 			Port string `json:"port"`
@@ -35,39 +59,25 @@ type ConfigJson struct {
 	} `json:"proxys"`
 }
 
-type ConfigDb struct {
-	Host 	  string
-	Port 	  string
-	User 	  string
-	Pwd  	  string
-	Name 	  string
-	Driver    string
-	DbCharset string
+
+type ReptileTool struct {
+
+	Debug bool
+	Params Params
+	ProxyType ProxyType
 }
-
-type Proxy struct {
-
-	Host 	  string
-	Port 	  string
-	User 	  string
-	Pwd  	  string
-	SocksHost string
-	SocksPort string
-
-}
-
 
 type Params struct {
-
 	Method string
+	Url	string
 	Header map[string]string
-
-
+	Body   []byte
+	CType ContentType
 }
 
 type CallBack struct {
-	content		[]byte
-	err			error
+	Content		[]byte
+	Err			error
 }
 
 

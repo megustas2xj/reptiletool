@@ -7,77 +7,111 @@ import (
 	"fmt"
 	"golang.org/x/net/proxy"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
+	"net/url"
 )
 
-var callBack *CallBack
-
-func GetProxy() *Proxy{
-
-	file,_:=os.Open("config.json")
-	defer file.Close()
-
-	configJson:=ConfigJson{}
-	json.NewDecoder(file).Decode(&configJson)
-
-	config:=Proxy{
-		Host:configJson.Proxys.Proxy.Host,
-		Port:configJson.Proxys.Proxy.Port,
-		User:configJson.Proxys.Proxy.User,
-		Pwd:configJson.Proxys.Proxy.Pwd,
-		SocksHost:configJson.Proxys.Socks.Host,
-		SocksPort:configJson.Proxys.Socks.Port,
-	}
-	return &config
-}
-
+var c *CallBack
 func init(){
-	callBack=new(CallBack)
+	c=new(CallBack)
 }
 
-func PostFromData(bodytype string, httpurl string, headers map[string]string, body map[string]string) *CallBack {
+func (r *ReptileTool)StartRequest(method string,url string,header map[string]string,body []byte)*ReptileTool{
 
-	w := multipart.NewWriter(new(bytes.Buffer))
-	for k, v := range body {
-		w.WriteField(k, v)
-	}
-	w.Close()
-	postdata, _ := json.Marshal(body)
-	headers["Content-Type"] = w.FormDataContentType()
-	callBack= StartRequest("POST", httpurl, headers, postdata)
-	return callBack
+	r.Params.Method=method
+	r.Params.Header=header
+	r.Params.Body = body
+	r.Params.Url = url
+	return r
 }
 
-func StartRequest(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
+func (r *ReptileTool)SetContentType(contentType ContentType) *ReptileTool{
+	r.Params.CType=contentType
+	return r
+}
 
-	value:=GetProxy()
+func (r *ReptileTool)SetProxy(proxyType ProxyType) *ReptileTool{
+	r.ProxyType=proxyType
+	return r
+}
 
-	auth := proxy.Auth{
-		User:     value.User,
-		Password: value.Pwd,
+func (r *ReptileTool)SetDebug(flag bool) *ReptileTool{
+	r.Debug=flag
+	return r
+}
+
+func (r *ReptileTool)MakeRequest() *CallBack{
+
+	var body map[string]string
+	if r.Params.Body!=nil{
+		body=GetKeyValue(r.Params.Body)
+	}
+	var postData []byte
+	if r.Params.CType==""{
+		r.Params.CType=Json
+	}
+	cp :=r.Params.CType
+	switch cp {
+	case MultipartFromData:
+		w := multipart.NewWriter(new(bytes.Buffer))
+		for k, v := range body {
+			w.WriteField(k, v)
+		}
+		w.Close()
+		postData, _ = json.Marshal(body)
+		r.Params.Body=postData
+		r.Params.Header["Content-Type"] = w.FormDataContentType()
+	case Urlencoded:
+		DataUlrval:=url.Values{}
+		for s, s2 := range body {
+			DataUlrval.Add(s,s2)
+		}
+		r.Params.Body=[]byte(DataUlrval.Encode())
 	}
 
-	address := fmt.Sprintf("%s:%s", value.Host, value.Port)
+	if r.ProxyType!=""{
+		return StartRequestProxy(r)
+	}
+	return StartRequest(r)
+}
+
+func StartRequestProxy(r *ReptileTool) *CallBack{
+
+	socket,authSocket:=GetProxy()
+	var auth proxy.Auth
+	var address string
+	proxyType := r.ProxyType
+	switch proxyType {
+	case Socket5:
+		address = fmt.Sprintf("%s:%s", socket.Host, socket.Port)
+	case HttpProxy:
+		auth=proxy.Auth{
+			User:     authSocket.UserName,
+			Password: authSocket.Password,
+		}
+		address = fmt.Sprintf("%s:%s", socket.Host, socket.Port)
+	}
+
 	dialer, err := proxy.SOCKS5("tcp", address, &auth, proxy.Direct)
 	if err != nil {
-		callBack.err=err
-		return callBack
+		if r.Debug{
+			c.Err=err
+			log.Printf("[error] %s %s",r.Params.Url,err.Error())
+		}
+		return c
 	}
-
-	//获取ip地址
-	if httpUrl == "" {
-		httpUrl = "http://httpbin.org/get"
-	}
-	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
+	request, err := http.NewRequest(r.Params.Method, r.Params.Url, bytes.NewBuffer(r.Params.Body))
 	if err != nil {
-		WriteLog("StartRequest", err.Error())
-		callBack.err=err
-		return callBack
+		if r.Debug{
+			c.Err=err
+			log.Printf("[error] %s %s",r.Params.Url,err.Error())
+		}
+		return c
 	}
-	if headers != nil {
-		for key, val := range headers {
+	if r.Params.Header != nil {
+		for key, val := range r.Params.Header {
 			request.Header.Add(key, val)
 		}
 	}
@@ -93,79 +127,58 @@ func StartRequest(method string, httpUrl string, headers map[string]string, body
 	}
 	resp, err = httpClient.Do(request)
 	if err != nil {
-		WriteLog("StartRequest", err.Error())
-		callBack.err=err
-		return callBack
+		if r.Debug{
+			c.Err=err
+			log.Printf("[error] %s %s",r.Params.Url,err.Error())
+		}
+		return c
 	}
+
 	defer resp.Body.Close()
-	callBack.content, callBack.err= ioutil.ReadAll(resp.Body)
-	return callBack
+	content, err:= ioutil.ReadAll(resp.Body)
+	c.Content=content
+	return c
+
 }
 
+func StartRequest(r *ReptileTool) *CallBack {
 
-func StartRequestNoProxy(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
-
-	//获取ip地址
-	if httpUrl == "" {
-		httpUrl = "http://httpbin.org/get"
-	}
-	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
+	request, err := http.NewRequest(r.Params.Method, r.Params.Url, bytes.NewBuffer(r.Params.Body))
 	if err != nil {
-		WriteLog("StartRequestNoProxy", err.Error())
-		return nil, err
+		if r.Debug {
+			log.Printf("[error] %s  %s",r.Params.Url,err.Error())
+			c.Err=err
+			return c
+		}
 	}
-	if headers != nil {
-		for key, val := range headers {
+	if r.Params.Header != nil {
+		for key, val := range r.Params.Header {
 			request.Header.Add(key, val)
 		}
 	}
 	var resp *http.Response
-
 	resp, err = http.DefaultClient.Do(request)
 	if err != nil {
-		WriteLog("StartRequestNoProxy", err.Error())
-		return nil, err
-	}
-	defer resp.Body.Close()
-	content, err = ioutil.ReadAll(resp.Body)
-	return
-}
-
-func StartRequestSocks(method string, httpUrl string, headers map[string]string, body []byte) *CallBack {
-
-	value:=GetProxy()
-
-	dialer, err := proxy.SOCKS5("tcp",fmt.Sprintf("%v:%v",value.SocksHost,value.SocksPort),nil, proxy.Direct)
-	if err != nil {
-		return
-	}
-
-	request, err := http.NewRequest(method, httpUrl, bytes.NewBuffer(body))
-	if err != nil {
-		WriteLog("StartRequestSocks", err.Error())
-		return nil, err
-	}
-	if headers != nil {
-		for key, val := range headers {
-			request.Header.Add(key, val)
+		if r.Debug{
+			log.Printf("[error] %s %s",r.Params.Url,err.Error())
+			c.Err=err
+			return c
 		}
 	}
-	var resp *http.Response
-	httpTransport := &http.Transport{
-		//跳过证书验证
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	httpClient := &http.Client{Transport: httpTransport}
-	if dialer != nil {
-		httpTransport.Dial = dialer.Dial
-	}
-	resp, err = httpClient.Do(request)
-	if err != nil {
-		WriteLog("StartRequestSocks", err.Error())
-		return nil, err
-	}
 	defer resp.Body.Close()
-	content, err = ioutil.ReadAll(resp.Body)
-	return
+	content, _:= ioutil.ReadAll(resp.Body)
+	c.Content=content
+	return c
+}
+
+func CheckIP(){
+
+	httpUrl:= "http://httpbin.org/get"
+	r:=new(ReptileTool)
+	c:=r.StartRequest("GET",httpUrl,nil,nil).SetProxy(Socket5).SetDebug(true).MakeRequest()
+	ipRes:=new(GetIpRes)
+	if c.Content!=nil{
+		json.Unmarshal(c.Content,&ipRes)
+		log.Printf("【originIp】 %s",ipRes.Origin)
+	}
 }

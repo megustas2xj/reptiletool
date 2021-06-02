@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/forgoer/openssl"
 	"github.com/go-basic/uuid"
+	"log"
 	"strings"
 )
 
@@ -44,6 +45,17 @@ func Decrypt(str string,key string,iv string) []byte{
 	src,_:=base64.StdEncoding.DecodeString(str)
 	dst,_:=openssl.DesCBCDecrypt([]byte(src),[]byte(key),[]byte(iv),openssl.PKCS5_PADDING)
 	return dst
+}
+
+func GetKeyValue (str []byte) (mp map[string]string){
+
+	strs:=strings.Split(string(str),"&")
+	for _, v := range strs {
+		sp:=strings.Split(v,"=")
+		mp[sp[0]]=strings.ReplaceAll(sp[1],"\"","")
+	}
+	log.Println("str->",str," mp->",mp)
+	return mp
 }
 
 
