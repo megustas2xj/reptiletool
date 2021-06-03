@@ -18,7 +18,7 @@ go get github.com/megustas2xj/reptiletool
 	r:=new(ReptileTool)
 	c:=r.StartRequest("GET",httpUrl,nil,nil).SetProxy(Socket5).SetDebug(true).MakeRequest()
 	if c.Content!=nil{
-		log.Printf("【】 %s",string(c.Content))
+		log.Printf("%s",string(c.Content))
 	}
 
 ### 2.Not using a proxy
@@ -27,7 +27,7 @@ go get github.com/megustas2xj/reptiletool
 	r:=new(ReptileTool)
 	c:=r.StartRequest("GET",httpUrl,nil,nil).SetDebug(true).MakeRequest()
 	if c.Content!=nil{
-		log.Printf("【】 %s",string(c.Content))
+		log.Printf("%s",string(c.Content))
 	}
 
 
