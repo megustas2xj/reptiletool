@@ -21,11 +21,14 @@
     }
 
 ## 2.Not using a proxy
+    func main() {
 
-	httpUrl:= "http://httpbin.org/get"
-	r:=new(reptiletool.ReptileTool)
+        httpUrl:= "http://httpbin.org/get"
+        r:=new(reptiletool.ReptileTool)
+    
+        c:=r.StartRequest("GET",httpUrl,nil,nil).SetDebug(true).MakeRequest()
+        if c.Content!=nil{
+            log.Printf("%s",string(c.Content))
+        }
 
-	c:=r.StartRequest("GET",httpUrl,nil,nil).SetDebug(true).MakeRequest()
-	if c.Content!=nil{
-		log.Printf("%s",string(c.Content))
-	}
+    }
