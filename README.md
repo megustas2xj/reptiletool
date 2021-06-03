@@ -29,6 +29,3 @@ go get github.com/megustas2xj/reptiletool
 	if c.Content!=nil{
 		log.Printf("%s",string(c.Content))
 	}
-
-
-

@@ -32,8 +32,9 @@ func (r *ReptileTool)SetContentType(contentType ContentType) *ReptileTool{
 	return r
 }
 
-func (r *ReptileTool)SetProxy(proxyType ProxyType) *ReptileTool{
+func (r *ReptileTool)SetProxy(proxyType ProxyType,config ProxyConfig) *ReptileTool{
 	r.ProxyType=proxyType
+	r.ProxyConfig=config
 	return r
 }
 
@@ -79,19 +80,18 @@ func (r *ReptileTool)MakeRequest() *CallBack{
 
 func StartRequestProxy(r *ReptileTool) *CallBack{
 
-	socket,authSocket:=GetProxy()
 	var auth proxy.Auth
 	var address string
 	proxyType := r.ProxyType
 	switch proxyType {
 	case Socket5:
-		address = fmt.Sprintf("%s:%s", socket.Host, socket.Port)
+		address = fmt.Sprintf("%s:%s", r.ProxyConfig.Host, r.ProxyConfig.Port)
 	case HttpProxy:
 		auth=proxy.Auth{
-			User:     authSocket.UserName,
-			Password: authSocket.Password,
+			User:     r.ProxyConfig.User,
+			Password: r.ProxyConfig.Pwd,
 		}
-		address = fmt.Sprintf("%s:%s", socket.Host, socket.Port)
+		address = fmt.Sprintf("%s:%s", r.ProxyConfig.Host,r.ProxyConfig.Port)
 	}
 
 	dialer, err := proxy.SOCKS5("tcp", address, &auth, proxy.Direct)
@@ -175,11 +175,11 @@ func CheckIP(){
 
 	httpUrl:= "http://httpbin.org/get"
 	r:=new(ReptileTool)
-	c:=r.StartRequest("GET",httpUrl,nil,nil).SetProxy(Socket5).SetDebug(true).MakeRequest()
+	config:=ProxyConfig{Host: "127.0.0.1",Port: "10808"}
+	c:=r.StartRequest("GET",httpUrl,nil,nil).SetProxy(Socket5,config).SetDebug(true).MakeRequest()
 	ipRes:=new(GetIpRes)
 	if c.Content!=nil{
 		json.Unmarshal(c.Content,&ipRes)
-
 		log.Printf("【originIp】 %s",ipRes.Origin)
 	}
 }

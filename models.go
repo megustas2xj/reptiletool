@@ -12,11 +12,11 @@ type ContentType string
 type ProxyType string
 
 const (
-	 Json ContentType = "1" // application/json
-	 MultipartFromData ContentType = "2" //PostFromData
-	 Urlencoded ContentType = "3" //application/x-www-form-urlencoded
-	 Socket5 ProxyType = "1"
-	 HttpProxy ProxyType = "2"
+	Json ContentType = "1" // application/json
+	MultipartFromData ContentType = "2" //PostFromData
+	Urlencoded ContentType = "3" //application/x-www-form-urlencoded
+	Socket5 ProxyType = "1"
+	HttpProxy ProxyType = "2"
 )
 
 type GetIpRes struct {
@@ -32,39 +32,19 @@ type GetIpRes struct {
 	URL string `json:"url"`
 }
 
-type AuthSocket struct {
+type ProxyConfig struct {
 	Host string
 	Port string
-	UserName string
-	Password string
+	User string
+	Pwd string
 }
-
-type Socket struct {
-	Host string
-	Port string
-}
-
-type ProxyRes struct {
-	Proxys struct {
-		HTTP struct {
-			Host string `json:"host"`
-			Port string `json:"port"`
-			User string `json:"user"`
-			Pwd string `json:"pwd"`
-		} `json:"http"`
-		Socks struct {
-			Host string `json:"host"`
-			Port string `json:"port"`
-		} `json:"socks"`
-	} `json:"proxys"`
-}
-
 
 type ReptileTool struct {
 
 	Debug bool
 	Params Params
 	ProxyType ProxyType
+	ProxyConfig ProxyConfig
 }
 
 type Params struct {
