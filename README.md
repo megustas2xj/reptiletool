@@ -1,17 +1,6 @@
-## reptiletool介绍
-reptiletool 是一个http请求的工具
-
-### 下载
-go get github.com/megustas2xj/reptiletool
-
-### 说明
-自行修改config.json 配置文件
-
 # example
-
     import (
         "github.com/megustas2xj/reptiletool"
-        "log"
     )
 ## 1.Using Proxy
     func main() {
