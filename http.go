@@ -179,6 +179,7 @@ func CheckIP(){
 	ipRes:=new(GetIpRes)
 	if c.Content!=nil{
 		json.Unmarshal(c.Content,&ipRes)
+
 		log.Printf("【originIp】 %s",ipRes.Origin)
 	}
 }
