@@ -11,7 +11,8 @@ go get github.com/megustas2xj/reptiletool
 自行修改config.json 配置文件
 
 
-### example
+# example
+### 1.Using Proxy
 
 	httpUrl:= "http://httpbin.org/get"
 	r:=new(ReptileTool)
@@ -19,3 +20,13 @@ go get github.com/megustas2xj/reptiletool
 	if c.Content!=nil{
 		log.Printf("【】 %s",string(c.Content))
 	}
+
+### 2.Not using a proxy
+
+	httpUrl:= "http://httpbin.org/get"
+	r:=new(ReptileTool)
+	c:=r.StartRequest("GET",httpUrl,nil,nil).SetDebug(true).MakeRequest()
+	if c.Content!=nil{
+		log.Printf("【】 %s",string(c.Content))
+	}
+
